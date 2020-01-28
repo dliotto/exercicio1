@@ -42,7 +42,7 @@ server.put('/projetos/:id', (req, res) =>{
 });
 
 //deleta um projeto com o ID específico 
-server.delete('projetos/:id', (req, res) => {
+server.delete('/projetos/:id', (req, res) => {
     const { id } = req.params;
 
     const projetoIndice = projetos.findIndex(p => p.id == id);
