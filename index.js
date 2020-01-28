@@ -7,6 +7,29 @@ const server = express();
 server.use(express.json());
 
 const projetos = [];
+let numeroRequisicoes = 0;
+
+//middleware global, que faz a contagem de quantas requisições são chamadas no projeto
+server.use((req, res, next) => {
+    numeroRequisicoes = numeroRequisicoes + 1;
+
+    console.log("Número requisições = " + numeroRequisicoes);
+    
+    return next();
+});
+
+
+function verificaIdExiste( req, res, next ){
+    const { id } = req.params;
+    const projeto = projetos.find(p => p.id == id);
+
+    if( !projeto ){
+        return res.status(400).json({error : `Projeto com o ID: ${id} informado não encontrado!`});
+    }
+
+    return next();
+}
+
 
 //grava um novo projeto
 server.post('/projetos', (req, res) => {
@@ -30,7 +53,7 @@ server.get('/projetos', (req, res) => {
 });
 
 //altera um projeto com o ID específico
-server.put('/projetos/:id', (req, res) =>{
+server.put('/projetos/:id', verificaIdExiste, (req, res) =>{
 
     const { titulo } = req.body;
     const { id } = req.params;
@@ -42,7 +65,7 @@ server.put('/projetos/:id', (req, res) =>{
 });
 
 //deleta um projeto com o ID específico 
-server.delete('/projetos/:id', (req, res) => {
+server.delete('/projetos/:id', verificaIdExiste, (req, res) => {
     const { id } = req.params;
 
     const projetoIndice = projetos.findIndex(p => p.id == id);
@@ -54,7 +77,7 @@ server.delete('/projetos/:id', (req, res) => {
 
 
 //altera a task de determinado projeto
-server.post('/projetos/:id/tasks', (req, res) => {
+server.post('/projetos/:id/tasks', verificaIdExiste, (req, res) => {
     const { id } = req.params;
     const { titulo } = req.body;  
     const projeto = projetos.find(p => p.id == id);
